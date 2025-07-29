@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors | Monad</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <!-- Multisynq Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@multisynq/client@1.0.2/bundled/multisynq-client.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+    <div class="header-content">
+        <div class="logo">
+            <div class="logo-mark"></div>
+            <span class="logo-text">Monad RPS</span>
+        </div>
+        
+        <!-- Updated network status section to include wallet info -->
+        <div class="header-right">
+            <!-- Wallet info (shown when connected) -->
+            <div class="header-wallet-info hidden" id="headerWalletInfo">
+                <div class="header-wallet-status"></div>
+                <span class="header-wallet-address" id="headerWalletAddress">0x1234...5678</span>
+            </div>
+            
+            <!-- Network status -->
+            <div class="network-status">
+                <div class="status-dot" id="multisynqStatus"></div>
+                <span id="networkText">Monad Testnet</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+        
+        <!-- Main Content -->
+<main class="main">
+    <!-- Landing Screen -->
+    <div class="screen landing-screen" id="landingScreen">
+        <div class="welcome-section">
+            <h1 class="title">Rock Paper Scissors</h1>
+            <p class="subtitle">Compete on Monad's lightning-fast network</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">10,000+</div>
+                    <div class="stat-label">TPS</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">1s</div>
+                    <div class="stat-label">Finality</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">$0.01</div>
+                    <div class="stat-label">Gas Fee</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="connect-section">
+            <button class="connect-btn" id="connectBtn">
+                <span class="btn-text">Connect Wallet</span>
+            </button>
+            <p class="connect-info">Connect your wallet to start playing</p>
+        </div>
+    </div>
+
+    <!-- Wallet Connected Screen (REMOVED - wallet connection goes directly to game mode) -->
+    <div class="screen wallet-screen hidden" id="walletScreen">
+        <div class="wallet-info">
+            <div class="wallet-header">
+                <h2>Wallet Connected</h2>
+                <button class="disconnect-btn" id="disconnectBtn">Disconnect</button>
+            </div>
+            
+            <div class="wallet-details">
+                <div class="wallet-address" id="walletAddress">0x1234...5678</div>
+                <div class="wallet-balance">
+                    <span class="balance-value" id="balanceValue">5.42</span>
+                    <span class="balance-currency">MONAD</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direct to game mode options -->
+        <div class="game-mode-section">
+            <h3>Choose Game Mode</h3>
+            <div class="gamemode-options">
+                <div class="gamemode-option">
+                    <button class="gamemode-btn" id="createSessionBtnWallet">
+                        <div class="gamemode-icon">👥</div>
+                        <div class="gamemode-info">
+                            <h3>Create Private Session</h3>
+                            <p>Generate code to play with friends</p>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="gamemode-option">
+                    <button class="gamemode-btn" id="joinSessionBtn">
+                        <div class="gamemode-icon">🚪</div>
+                        <div class="gamemode-info">
+                            <h3>Join Friend's Session</h3>
+                            <p>Enter code to join friend's game</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Mode Selection Screen -->
+    <div class="screen gamemode-screen hidden" id="gameModeScreen">
+        <div class="gamemode-content">
+            <div class="gamemode-header">
+                <h2>Choose Game Mode</h2>
+                <!-- REMOVED: selected-bet div -->
+            </div>
+
+            <div class="gamemode-options">
+                <div class="gamemode-option">
+                    <button class="gamemode-btn" id="findRandomBtn">
+                        <div class="gamemode-icon">🚪</div>
+                        <div class="gamemode-info">
+                            <h3>Join Friend's Session</h3>
+                            <p>Enter code to join friend's game</p>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="gamemode-option">
+                    <button class="gamemode-btn" id="createSessionBtn">
+                        <div class="gamemode-icon">👥</div>
+                        <div class="gamemode-info">
+                            <h3>Create Private Session</h3>
+                            <p>Generate code to play with friends</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- REMOVED: gamemode-actions div with back to bet button -->
+        </div>
+    </div>
+
+    <!-- Join Session Screen -->
+    <div class="screen join-session-screen hidden" id="joinSessionScreen">
+        <div class="join-session-content">
+            <div class="join-header">
+                <h2>Join Friend's Game</h2>
+                <p>Enter the 6-character code shared by your friend</p>
+            </div>
+
+            <div class="code-input-section">
+                <input type="text" 
+                       id="sessionCodeInput" 
+                       class="code-input" 
+                       placeholder="ABC123" 
+                       maxlength="6"
+                       autocomplete="off">
+                <p class="input-hint">Code should be 6 characters long</p>
+            </div>
+
+            <div class="join-actions">
+                <button class="btn btn-primary" id="joinCodeBtn">Join Game</button>
+                <button class="btn btn-secondary" id="backToGameModeBtn">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Private Session Screen -->
+    <div class="screen private-session-screen hidden" id="privateSessionScreen">
+        <div class="private-session-content">
+            <div class="session-header">
+                <h2>Private Session Created</h2>
+                <!-- REMOVED: session-details div with bet amount -->
+            </div>
+
+            <div class="session-code-section">
+                <div class="code-display">
+                    <div class="code-label">Session Code</div>
+                    <div class="session-code" id="sessionCode">ROCK42</div>
+                </div>
+                
+                <button class="copy-btn" id="copyCodeBtn">
+                    <span>📋 Copy Invite</span>
+                </button>
+            </div>
+
+            <div class="waiting-animation">
+                <div class="waiting-circle">
+                    <div class="waiting-dot"></div>
+                </div>
+                <p class="waiting-status" id="waitingStatus">Waiting for player to join...</p>
+                <p class="waiting-info">Share the code with your friend</p>
+            </div>
+
+            <div class="session-actions">
+                <button class="btn btn-secondary" id="cancelSessionBtn">Cancel Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matchmaking Screen (REMOVED - no more random matchmaking) -->
+    <div class="screen matchmaking-screen hidden" id="matchmakingScreen">
+        <div class="matchmaking-content">
+            <div class="match-header">
+                <h2>Finding Opponent</h2>
+                <!-- REMOVED: bet amount display -->
+            </div>
+            
+            <div class="search-animation">
+                <div class="search-circle">
+                    <div class="search-dot"></div>
+                </div>
+                <p class="search-status" id="searchStatus">Searching for players...</p>
+                <!-- REMOVED: queue position -->
+            </div>
+            
+            <div class="match-actions">
+                <button class="btn btn-secondary" id="cancelSearch">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen game-screen hidden" id="gameScreen">
+        <div class="game-header">
+            <div class="game-info">
+                <span class="round-counter">Round <span id="currentRound">1</span>/3</span>
+                <!-- REMOVED: prize-display div -->
+            </div>
+            <div class="timer-section">
+                <div class="timer-circle">
+                    <span class="timer-value" id="timerValue">30</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="players-section">
+            <div class="player player-you">
+                <div class="player-info">
+                    <div class="player-label">You</div>
+                    <div class="player-address" id="playerYouAddr">0x1234...5678</div>
+                </div>
+                <div class="player-score" id="playerYouScore">0</div>
+                <div class="player-choice" id="playerYouChoice">
+                    <div class="choice-icon">?</div>
+                </div>
+            </div>
+
+            <div class="vs-section">
+                <div class="vs-text">VS</div>
+            </div>
+
+            <div class="player player-opponent">
+                <div class="player-info">
+                    <div class="player-label">Opponent</div>
+                    <div class="player-address" id="playerOppAddr">0x5678...1234</div>
+                </div>
+                <div class="player-score" id="playerOppScore">0</div>
+                <div class="player-choice" id="playerOppChoice">
+                    <div class="choice-icon">?</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-status">
+            <p class="status-message" id="statusMessage">Choose your move</p>
+        </div>
+
+        <div class="choices-section">
+            <button class="choice-btn" data-choice="rock">
+                <div class="choice-icon">🗿</div>
+                <div class="choice-name">Rock</div>
+            </button>
+            <button class="choice-btn" data-choice="paper">
+                <div class="choice-icon">📄</div>
+                <div class="choice-name">Paper</div>
+            </button>
+            <button class="choice-btn" data-choice="scissors">
+                <div class="choice-icon">✂️</div>
+                <div class="choice-name">Scissors</div>
+            </button>
+        </div>
+
+        <div class="game-actions">
+            <button class="btn btn-secondary" id="forfeitBtn">Forfeit</button>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div class="screen results-screen hidden" id="resultsScreen">
+        <div class="results-content">
+            <div class="result-header">
+                <h2 class="result-title" id="resultTitle">You Won!</h2>
+                <div class="final-score">
+                    <span>You: <span id="finalYouScore">2</span></span>
+                    <span>Opponent: <span id="finalOppScore">1</span></span>
+                </div>
+            </div>
+
+            <!-- REMOVED: Entire prize-section div -->
+
+            <div class="results-actions">
+                <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
+                <button class="btn btn-secondary" id="backToMenuBtn">Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Play Again Waiting Screen -->
+    <div class="screen play-again-waiting-screen hidden" id="playAgainWaitingScreen">
+        <div class="play-again-content">
+            <div class="play-again-header">
+                <h2>Requesting Rematch</h2>
+                <!-- REMOVED: rematch-details div with bet amount -->
+            </div>
+
+            <div class="waiting-animation">
+                <div class="waiting-circle">
+                    <div class="waiting-dot"></div>
+                </div>
+                <p class="waiting-status">Waiting for opponent response...</p>
+                <p class="waiting-info">Your opponent is deciding whether to play again</p>
+            </div>
+
+            <div class="play-again-actions">
+                <button class="btn btn-secondary" id="cancelPlayAgainBtn">Cancel & Return to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Play Again Request Screen -->
+    <div class="screen play-again-request-screen hidden" id="playAgainRequestScreen">
+        <div class="play-again-request-content">
+            <div class="request-header">
+                <h2>🎮 Rematch Request!</h2>
+                <p class="request-subtitle">Your opponent wants to play again</p>
+            </div>
+
+            <div class="request-details">
+                <!-- REMOVED: bet amount info -->
+                <div class="request-info">
+                    <div class="info-label">Same Rules</div>
+                    <div class="info-value">Best of 3 Rounds</div>
+                </div>
+            </div>
+
+            <div class="request-actions">
+                <button class="btn btn-primary" id="acceptRematchBtn">Accept Rematch</button>
+                <button class="btn btn-secondary" id="declineRematchBtn">Decline & Exit</button>
+            </div>
+        </div>
+    </div>
+</main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
