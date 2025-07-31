@@ -327,11 +327,7 @@ body {
     }
 }
 
-/* Optional: If you want the image to have a background */
-.game-hero-image {
-    background: radial-gradient(circle at center, rgba(107, 70, 193, 0.1) 0%, transparent 70%);
-    border-radius: var(--radius-xl);
-}
+
 
 /* Wallet Screen */
 .wallet-info {
