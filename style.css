@@ -279,6 +279,60 @@ body {
     color: var(--gray-500);
 }
 
+.game-hero-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--space-8);
+    padding: var(--space-4);
+}
+
+.hero-image {
+    max-width: 100%;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    
+    /* Optional: Add some visual effects */
+    filter: drop-shadow(0 10px 25px rgba(107, 70, 193, 0.3));
+    transition: var(--transition);
+}
+
+.hero-image:hover {
+    transform: scale(1.02);
+    filter: drop-shadow(0 15px 35px rgba(107, 70, 193, 0.4));
+}
+
+/* Responsive adjustments for the image */
+@media (max-width: 768px) {
+    .hero-image {
+        max-height: 300px;
+    }
+    
+    .game-hero-image {
+        margin-bottom: var(--space-6);
+        padding: var(--space-2);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-image {
+        max-height: 250px;
+    }
+    
+    .game-hero-image {
+        margin-bottom: var(--space-4);
+    }
+}
+
+/* Optional: If you want the image to have a background */
+.game-hero-image {
+    background: radial-gradient(circle at center, rgba(107, 70, 193, 0.1) 0%, transparent 70%);
+    border-radius: var(--radius-xl);
+}
+
 /* Wallet Screen */
 .wallet-info {
     background: var(--gray-900);
